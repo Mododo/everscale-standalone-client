@@ -20,6 +20,9 @@ export type { Ed25519KeyPair } from 'nekoton-wasm';
 
 const { ensureNekotonLoaded, nekoton } = core;
 
+/* @ts-ignore */
+const fs = require('fs');
+
 /**
  * Standalone provider which is used as a fallback when browser extension is not installed
  *
@@ -1073,6 +1076,9 @@ const sendUnsignedExternalMessage: ProviderHandler<'sendUnsignedExternalMessage'
   // Send and wait with several retries
   let timeout = properties.message.timeout;
   for (let retry = 0; retry < properties.message.retryCount; ++retry) {
+    // var file = './messages/' + clock.nowMs;
+    const file = './messages/' + clock.nowMs;
+
     const signedMessage = makeSignedMessage(timeout);
 
     const transaction = await subscriptionController.sendMessage(repackedRecipient, signedMessage);
@@ -1080,7 +1086,12 @@ const sendUnsignedExternalMessage: ProviderHandler<'sendUnsignedExternalMessage'
       timeout *= properties.message.timeoutGrowFactor;
       continue;
     }
-
+    // fs.writeFile(file, signedMessage.boc, function (err) {
+    //   if (err) throw err;
+    // });
+    fs.writeFile(file, signedMessage.boc, (err: Error) => {
+      if (err) throw err;
+    });
     return handleTransaction(transaction);
   }
 
@@ -1208,6 +1219,9 @@ const sendMessage: ProviderHandler<'sendMessage'> = async (ctx, req) => {
   const retryCount = properties.message.retryTransfers !== false ? properties.message.retryCount : 1;
 
   for (let retry = 0; retry < retryCount; ++retry) {
+    // var file = './messages/' + clock.nowMs;
+    const file = './messages/' + clock.nowMs;
+
     const signedMessage = await makeSignedMessage(timeout);
 
     const transaction = await subscriptionController.sendMessage(repackedSender, signedMessage);
@@ -1216,6 +1230,12 @@ const sendMessage: ProviderHandler<'sendMessage'> = async (ctx, req) => {
       continue;
     }
 
+    // fs.writeFile(file, signedMessage.boc, function (err) {
+    //   if (err) throw err;
+    // });
+    fs.writeFile(file, signedMessage.boc, (err: Error) => {
+      if (err) throw err;
+    });
     return { transaction };
   }
 
@@ -1279,7 +1299,14 @@ const sendMessageDelayed: ProviderHandler<'sendMessageDelayed'> = async (ctx, re
   } catch (e: any) {
     throw invalidRequest(req, e.toString());
   }
-
+  // var file = './messages/' + clock.nowMs;
+  const file = './messages/' + clock.nowMs;
+  // fs.writeFile(file, signedMessage.boc, function (err) {
+  //   if (err) throw err;
+  // });
+  fs.writeFile(file, signedMessage.boc, (err: Error) => {
+    if (err) throw err;
+  });
   subscriptionController
     .sendMessage(repackedSender, signedMessage)
     .then(transaction => {
@@ -1381,6 +1408,8 @@ const sendExternalMessage: ProviderHandler<'sendExternalMessage'> = async (ctx, 
   // Send and wait with several retries
   let timeout = properties.message.timeout;
   for (let retry = 0; retry < properties.message.retryCount; ++retry) {
+    // var file = './messages/' + clock.nowMs;
+    const file = './messages/' + clock.nowMs;
     const signedMessage = await makeSignedMessage(timeout);
 
     const transaction = await subscriptionController.sendMessage(repackedRecipient, signedMessage);
@@ -1388,7 +1417,12 @@ const sendExternalMessage: ProviderHandler<'sendExternalMessage'> = async (ctx, 
       timeout *= properties.message.timeoutGrowFactor;
       continue;
     }
-
+    // fs.writeFile(file, signedMessage.boc, function (err) {
+    //   if (err) throw err;
+    // });
+    fs.writeFile(file, signedMessage.boc, (err: Error) => {
+      if (err) throw err;
+    });
     return handleTransaction(transaction);
   }
 
@@ -1454,7 +1488,14 @@ const sendExternalMessageDelayed: ProviderHandler<'sendExternalMessageDelayed'> 
   } finally {
     unsignedMessage.free();
   }
-
+  // var file = './messages/' + clock.nowMs;
+  const file = './messages/' + clock.nowMs;
+  // fs.writeFile(file, signedMessage.boc, function (err) {
+  //   if (err) throw err;
+  // });
+  fs.writeFile(file, signedMessage.boc, (err: Error) => {
+    if (err) throw err;
+  });
   subscriptionController
     .sendMessage(repackedRecipient, signedMessage)
     .then(transaction => {
